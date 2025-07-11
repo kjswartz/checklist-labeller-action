@@ -64,7 +64,7 @@ runs:
       shell: bash
       env:
         GH_TOKEN: ${{ inputs.github-token }}
-        COMMENT: ${{ inputs.comment-body }}
+        TEXT_BODY: ${{ inputs.text-body }}
         ISSUE_NUMBER: ${{ inputs.issue-number }}
         LABELS: ${{ inputs.issue-labels }}
         RUN_CHECK_LABEL: ${{ inputs.run-check-label }}
@@ -81,7 +81,7 @@ runs:
         RUN_CHECK_LABEL=$(echo "${LABELS}" | jq --arg label "${RUN_CHECK_LABEL}" 'map(.name // empty) | contains([$label])')
         if [[ "${RUN_CHECK_LABEL}" == "true" ]]; then
           # Extract the checklist section
-          CHECKLIST_SECTION=$(echo "${COMMENT}" | sed -n "/<!-- key=\"${CHECKLIST_KEY}\" value=\"start\" -->/,/<!-- key=\"${CHECKLIST_KEY}\" value=\"end\" -->/p")
+          CHECKLIST_SECTION=$(echo "${TEXT_BODY}" | sed -n "/<!-- key=\"${CHECKLIST_KEY}\" value=\"start\" -->/,/<!-- key=\"${CHECKLIST_KEY}\" value=\"end\" -->/p")
 
           # Check if the checklist section exists
           if [[ -z "${CHECKLIST_SECTION}" ]]; then
@@ -99,7 +99,7 @@ runs:
             echo "status=incomplete" >> $GITHUB_OUTPUT
             echo "message=Not all checkboxes are completed" >> $GITHUB_OUTPUT
 
-            if [[ -z "${COMPLETED_LABEL}" ]]; then
+            if [[ "${COMPLETED_LABEL}" ]]; then
               echo "${LABELS}" | jq 'map(.name)' | grep -wq "${COMPLETED_LABEL}"
               if [[ $? -eq 0 ]]; then
                 echo "Removing label: ${COMPLETED_LABEL}"
@@ -107,7 +107,7 @@ runs:
               fi
             fi
 
-            if [[ -z "${INCOMPLETE_LABEL}" ]]; then
+            if [[ "${INCOMPLETE_LABEL}" ]]; then
               echo "${LABELS}" | jq 'map(.name)' | grep -wq "${INCOMPLETE_LABEL}"
               if [[ $? -ne 0 ]]; then
                 echo "Adding label: ${INCOMPLETE_LABEL}"
@@ -128,12 +128,12 @@ runs:
 
           echo "All checkboxes in the checklist section are completed!"
 
-          if [[ -z "${COMPLETED_LABEL}" ]]; then
+          if [[ "${COMPLETED_LABEL}" ]]; then
             echo "Adding label: ${COMPLETED_LABEL}"
             gh issue edit "${ISSUE_NUMBER}" --add-label "${COMPLETED_LABEL}"
           fi
 
-          if [[ -z "${INCOMPLETE_LABEL}" ]]; then
+          if [[ "${INCOMPLETE_LABEL}" ]]; then
             echo "Removing label: ${INCOMPLETE_LABEL}"
             gh issue edit "${ISSUE_NUMBER}" --remove-label "${INCOMPLETE_LABEL}"
           fi
