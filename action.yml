@@ -77,9 +77,9 @@ runs:
         # Set default outputs
         echo "status=skipped" >> $GITHUB_OUTPUT
         echo "message=No action taken" >> $GITHUB_OUTPUT
-        
-        RUN_CHECK_LABEL=$(echo "${LABELS}" | jq --arg label "${RUN_CHECK_LABEL}" 'map(.name // empty) | contains([$label])')
-        if [[ "${RUN_CHECK_LABEL}" == "true" ]]; then
+
+        LABEL_NAMES=$(echo "${LABELS}" | jq 'map(.name // empty)') 
+        if echo "${LABEL_NAMES}" | grep -wq "${RUN_CHECK_LABEL}"; then
           # Extract the checklist section
           CHECKLIST_SECTION=$(echo "${TEXT_BODY}" | sed -n "/<!-- key=\"${CHECKLIST_KEY}\" value=\"start\" -->/,/<!-- key=\"${CHECKLIST_KEY}\" value=\"end\" -->/p")
 
@@ -94,13 +94,13 @@ runs:
           echo "Found checklist section."
 
           # Check if empty checkboxes are present
-          if echo "${CHECKLIST_SECTION}" | grep -q "${REQUIRE_CHECKBOX_PATTERN}"; then
+          if echo "${CHECKLIST_SECTION}" | grep -wq "${REQUIRE_CHECKBOX_PATTERN}"; then
             echo "Not all checkboxes within the section are completed."
             echo "status=incomplete" >> $GITHUB_OUTPUT
             echo "message=Not all checkboxes are completed" >> $GITHUB_OUTPUT
 
             if [[ "${COMPLETED_LABEL}" ]]; then
-              echo "${LABELS}" | jq 'map(.name)' | grep -wq "${COMPLETED_LABEL}"
+              echo "${LABEL_NAMES}" | grep -wq "${COMPLETED_LABEL}"
               if [[ $? -eq 0 ]]; then
                 echo "Removing label: ${COMPLETED_LABEL}"
                 gh issue edit "${ISSUE_NUMBER}" --remove-label "${COMPLETED_LABEL}"
@@ -108,7 +108,7 @@ runs:
             fi
 
             if [[ "${INCOMPLETE_LABEL}" ]]; then
-              echo "${LABELS}" | jq 'map(.name)' | grep -wq "${INCOMPLETE_LABEL}"
+              echo "${LABEL_NAMES}" | grep -wq "${INCOMPLETE_LABEL}"
               if [[ $? -ne 0 ]]; then
                 echo "Adding label: ${INCOMPLETE_LABEL}"
                 gh issue edit "${ISSUE_NUMBER}" --add-label "${INCOMPLETE_LABEL}"
@@ -119,7 +119,7 @@ runs:
           fi
           
           # Verify that there are actually completed checkboxes present
-          if ! echo "${CHECKLIST_SECTION}" | grep -q "${COMPLETED_CHECKBOX_PATTERN}"; then
+          if ! echo "${CHECKLIST_SECTION}" | grep -wq "${COMPLETED_CHECKBOX_PATTERN}"; then
             echo "No completed checkboxes found within the section."
             echo "status=no-checkboxes" >> $GITHUB_OUTPUT
             echo "message=No completed checkboxes found" >> $GITHUB_OUTPUT
