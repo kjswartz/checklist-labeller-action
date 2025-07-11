@@ -16,6 +16,10 @@ inputs:
   text-body:
     description: 'Text body to check'
     required: true
+
+  checklist-key:
+    description: 'Key to identify the checklist section'
+    required: true
   
   issue-labels:
     description: 'JSON array of issue labels'
@@ -32,10 +36,6 @@ inputs:
   completed-label:
     description: 'Label to add when checklist is completed'
     required: false
-  
-  checklist-key:
-    description: 'Key to identify the checklist section'
-    required: true
   
   require-checkbox-pattern:
     description: 'Regex pattern for checkbox matching'
