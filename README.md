@@ -14,7 +14,8 @@ jobs:
   checklist-approval:
     runs-on: ubuntu-latest
     steps:
-      - uses: kjswartz/checklist-approval-action@v1
+      - uses: kjswartz/checklist-labeller-action@main
+        id: checklist-check
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.issue.number }}
@@ -24,6 +25,12 @@ jobs:
           incomplete-label: 'verification-needed'
           completed-label: 'verified'
           checklist-key: 'p1-checklist'
+
+      - name: Report Results
+        run: |
+          SUMMARY_MSG="### Status\n\n${{ steps.checklist-check.outputs.status }}\n\n### Message\n\n${{ steps.checklist-check.outputs.message }}"
+          echo -e "$SUMMARY_MSG"
+          echo -e "$SUMMARY_MSG" >> "$GITHUB_STEP_SUMMARY"
 ```
 
 ## Inputs
