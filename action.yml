@@ -119,9 +119,10 @@ runs:
               fi
             fi
             
+            echo "end of empty check"
             exit 0
           fi
-          
+          echo "start of complete check"
           # Verify that there are actually completed checkboxes present
           if ! echo "${CHECKLIST_SECTION}" | grep -wq "${COMPLETED_CHECKBOX_PATTERN}"; then
             echo "No completed checkboxes found within the section."
