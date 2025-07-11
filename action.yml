@@ -1,0 +1,147 @@
+# action.yml
+name: 'Checklist Completion Labeller'
+description: 'Automatically swap labels on issues when checklists are completed'
+author: 'kjswartz'
+
+inputs:
+  github-token:
+    description: 'GitHub token for API access'
+    required: true
+    default: ${{ github.token }}
+  
+  issue-number:
+    description: 'Issue number to process'
+    required: true
+  
+  text-body:
+    description: 'Text body to check'
+    required: true
+  
+  issue-labels:
+    description: 'JSON array of issue labels'
+    required: true
+  
+  run-check-label:
+    description: 'Label that indicates there is a checklist that needs to be completed'
+    required: true
+
+  incomplete-label:
+    description: 'Label that indicates checklist needs to be completed'
+    required: false
+  
+  completed-label:
+    description: 'Label to add when checklist is completed'
+    required: false
+  
+  checklist-key:
+    description: 'Key to identify the checklist section'
+    required: true
+  
+  require-checkbox-pattern:
+    description: 'Regex pattern for checkbox matching'
+    required: false
+    default: '^\- \[ \]'
+  
+  completed-checkbox-pattern:
+    description: 'Regex pattern for completed checkbox matching'
+    required: false
+    default: '^\- \[[xX]\]'
+
+outputs:
+  approval-status:
+    description: 'Status of the approval process'
+    value: ${{ steps.checklist-check.outputs.status }}
+  
+  message:
+    description: 'Message describing the result'
+    value: ${{ steps.checklist-check.outputs.message }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Check Comment Checkboxes
+      id: checklist-check
+      shell: bash
+      env:
+        GH_TOKEN: ${{ inputs.github-token }}
+        COMMENT: ${{ inputs.comment-body }}
+        ISSUE_NUMBER: ${{ inputs.issue-number }}
+        LABELS: ${{ inputs.issue-labels }}
+        RUN_CHECK_LABEL: ${{ inputs.run-check-label }}
+        INCOMPLETE_LABEL: ${{ inputs.incomplete-label }}
+        COMPLETED_LABEL: ${{ inputs.completed-label }}
+        CHECKLIST_KEY: ${{ inputs.checklist-key }}
+        REQUIRE_CHECKBOX_PATTERN: ${{ inputs.require-checkbox-pattern }}
+        COMPLETED_CHECKBOX_PATTERN: ${{ inputs.completed-checkbox-pattern }}
+      run: |
+        # Set default outputs
+        echo "status=skipped" >> $GITHUB_OUTPUT
+        echo "message=No action taken" >> $GITHUB_OUTPUT
+        
+        RUN_CHECK_LABEL=$(echo "${LABELS}" | jq --arg label "${RUN_CHECK_LABEL}" 'map(.name // empty) | contains([$label])')
+        if [[ "${RUN_CHECK_LABEL}" == "true" ]]; then
+          # Extract the checklist section
+          CHECKLIST_SECTION=$(echo "${COMMENT}" | sed -n "/<!-- key=\"${CHECKLIST_KEY}\" value=\"start\" -->/,/<!-- key=\"${CHECKLIST_KEY}\" value=\"end\" -->/p")
+
+          # Check if the checklist section exists
+          if [[ -z "${CHECKLIST_SECTION}" ]]; then
+            echo "No checklist section found in the comment."
+            echo "status=no-checklist" >> $GITHUB_OUTPUT
+            echo "message=No checklist section found" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "Found checklist section."
+
+          # Check if empty checkboxes are present
+          if echo "${CHECKLIST_SECTION}" | grep -q "${REQUIRE_CHECKBOX_PATTERN}"; then
+            echo "Not all checkboxes within the section are completed."
+            echo "status=incomplete" >> $GITHUB_OUTPUT
+            echo "message=Not all checkboxes are completed" >> $GITHUB_OUTPUT
+
+            if [[ -z "${COMPLETED_LABEL}" ]]; then
+              echo "${LABELS}" | jq 'map(.name)' | grep -wq "${COMPLETED_LABEL}"
+              if [[ $? -eq 0 ]]; then
+                echo "Removing label: ${COMPLETED_LABEL}"
+                gh issue edit "${ISSUE_NUMBER}" --remove-label "${COMPLETED_LABEL}"
+              fi
+            fi
+
+            if [[ -z "${INCOMPLETE_LABEL}" ]]; then
+              echo "${LABELS}" | jq 'map(.name)' | grep -wq "${INCOMPLETE_LABEL}"
+              if [[ $? -ne 0 ]]; then
+                echo "Adding label: ${INCOMPLETE_LABEL}"
+                gh issue edit "${ISSUE_NUMBER}" --add-label "${INCOMPLETE_LABEL}"
+              fi
+            fi
+            
+            exit 0
+          fi
+          
+          # Verify that there are actually completed checkboxes present
+          if ! echo "${CHECKLIST_SECTION}" | grep -q "${COMPLETED_CHECKBOX_PATTERN}"; then
+            echo "No completed checkboxes found within the section."
+            echo "status=no-checkboxes" >> $GITHUB_OUTPUT
+            echo "message=No completed checkboxes found" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+
+          echo "All checkboxes in the checklist section are completed!"
+
+          if [[ -z "${COMPLETED_LABEL}" ]]; then
+            echo "Adding label: ${COMPLETED_LABEL}"
+            gh issue edit "${ISSUE_NUMBER}" --add-label "${COMPLETED_LABEL}"
+          fi
+
+          if [[ -z "${INCOMPLETE_LABEL}" ]]; then
+            echo "Removing label: ${INCOMPLETE_LABEL}"
+            gh issue edit "${ISSUE_NUMBER}" --remove-label "${INCOMPLETE_LABEL}"
+          fi
+
+          echo "status=completed" >> $GITHUB_OUTPUT
+          echo "message=All checkboxes completed" >> $GITHUB_OUTPUT
+        else
+          echo "${RUN_CHECK_LABEL} label NOT found."
+          echo "status=no-check-label" >> $GITHUB_OUTPUT
+          echo "message=Required run check label not found" >> $GITHUB_OUTPUT
+        fi
