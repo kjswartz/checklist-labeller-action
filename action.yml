@@ -103,7 +103,9 @@ runs:
               echo "${LABEL_NAMES}" | grep -wq "${COMPLETED_LABEL}"
               if [[ $? -eq 0 ]]; then
                 echo "Removing label: ${COMPLETED_LABEL}"
-                gh issue edit "${ISSUE_NUMBER}" --remove-label "${COMPLETED_LABEL}" || echo "Warning: Failed to remove label ${COMPLETED_LABEL}"
+                if ! gh issue edit "${ISSUE_NUMBER}" --remove-label "${COMPLETED_LABEL}"; then
+                  echo "Warning: Failed to remove label ${COMPLETED_LABEL}"
+                fi
               fi
             fi
 
@@ -111,7 +113,9 @@ runs:
               echo "${LABEL_NAMES}" | grep -wq "${INCOMPLETE_LABEL}"
               if [[ $? -ne 0 ]]; then
                 echo "Adding label: ${INCOMPLETE_LABEL}"
-                gh issue edit "${ISSUE_NUMBER}" --add-label "${INCOMPLETE_LABEL}" || echo "Warning: Failed to add label ${INCOMPLETE_LABEL}"
+                if ! gh issue edit "${ISSUE_NUMBER}" --add-label "${INCOMPLETE_LABEL}"; then
+                  echo "Warning: Failed to add label ${INCOMPLETE_LABEL}"
+                fi
               fi
             fi
             
@@ -130,16 +134,21 @@ runs:
 
           if [[ "${COMPLETED_LABEL}" ]]; then
             echo "Adding label: ${COMPLETED_LABEL}"
-            gh issue edit "${ISSUE_NUMBER}" --add-label "${COMPLETED_LABEL}"
+            if ! gh issue edit "${ISSUE_NUMBER}" --add-label "${COMPLETED_LABEL}"; then
+              echo "Warning: Failed to add label ${COMPLETED_LABEL}"
+            fi
           fi
 
           if [[ "${INCOMPLETE_LABEL}" ]]; then
             echo "Removing label: ${INCOMPLETE_LABEL}"
-            gh issue edit "${ISSUE_NUMBER}" --remove-label "${INCOMPLETE_LABEL}"
+            if ! gh issue edit "${ISSUE_NUMBER}" --remove-label "${INCOMPLETE_LABEL}"; then
+              echo "Warning: Failed to remove label ${INCOMPLETE_LABEL}"
+            fi
           fi
 
           echo "status=completed" >> $GITHUB_OUTPUT
           echo "message=All checkboxes completed" >> $GITHUB_OUTPUT
+          exit 0
         else
           echo "${RUN_CHECK_LABEL} label NOT found."
           echo "status=no-check-label" >> $GITHUB_OUTPUT
