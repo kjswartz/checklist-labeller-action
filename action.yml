@@ -2,8 +2,10 @@
 name: 'Checklist Completion Labeller'
 description: 'Automatically swap labels on issues when checklists are completed'
 author: 'kjswartz'
-icon: 'check-square'
-color: 'green'
+
+branding:
+  icon: 'check-square'
+  color: 'green'
 
 inputs:
   github-token:
