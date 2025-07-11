@@ -48,8 +48,8 @@ inputs:
     default: '^\- \[[xX]\]'
 
 outputs:
-  approval-status:
-    description: 'Status of the approval process'
+  status:
+    description: 'Status of the process'
     value: ${{ steps.checklist-check.outputs.status }}
   
   message:
