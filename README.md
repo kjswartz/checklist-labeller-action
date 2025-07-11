@@ -1,6 +1,6 @@
 # Checklist Labeller Action
 
-This action automatically swaps GitHub issue labels when all checkboxes in a specified checklist section are completed. If the checklist was previously completed and has the completed-label attached and is then unchecked, the completed-label will be removed and the incomplete-label will be added back to the issue. Once the checklist is completed again, the incomplete-label will be removed and the completed-label will be added back. 
+This action automatically swaps GitHub issue labels when all checkboxes in a specified checklist section are completed. If the checklist was previously completed and has the completed-label attached and is then unchecked, the completed-label will be removed and the incomplete-label will be added back to the issue. Once the checklist is completed again, the incomplete-label will be removed and the completed-label will be added back. You do not need to include the completed-label, or incompleted-label. If you only include one of them, then just that label will be added/removed based on the completion status.
 
 ## Usage
 
