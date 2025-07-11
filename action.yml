@@ -100,8 +100,7 @@ runs:
             echo "message=Not all checkboxes are completed" >> $GITHUB_OUTPUT
 
             if [[ "${COMPLETED_LABEL}" ]]; then
-              echo "${LABEL_NAMES}" | grep -wq "${COMPLETED_LABEL}"
-              if [[ $? -eq 0 ]]; then
+              if echo "${LABEL_NAMES}" | grep -wq "${COMPLETED_LABEL}"; then
                 echo "Removing label: ${COMPLETED_LABEL}"
                 if ! gh issue edit "${ISSUE_NUMBER}" --remove-label "${COMPLETED_LABEL}"; then
                   echo "Warning: Failed to remove label ${COMPLETED_LABEL}"
@@ -110,19 +109,17 @@ runs:
             fi
 
             if [[ "${INCOMPLETE_LABEL}" ]]; then
-              echo "${LABEL_NAMES}" | grep -wq "${INCOMPLETE_LABEL}"
-              if [[ $? -ne 0 ]]; then
+              if ! echo "${LABEL_NAMES}" | grep -wq "${INCOMPLETE_LABEL}"; then
                 echo "Adding label: ${INCOMPLETE_LABEL}"
                 if ! gh issue edit "${ISSUE_NUMBER}" --add-label "${INCOMPLETE_LABEL}"; then
                   echo "Warning: Failed to add label ${INCOMPLETE_LABEL}"
                 fi
               fi
             fi
-            
-            echo "end of empty check"
+
             exit 0
           fi
-          echo "start of complete check"
+
           # Verify that there are actually completed checkboxes present
           if ! echo "${CHECKLIST_SECTION}" | grep -wq "${COMPLETED_CHECKBOX_PATTERN}"; then
             echo "No completed checkboxes found within the section."
