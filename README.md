@@ -7,8 +7,8 @@ This action automatically swaps GitHub issue labels when all checkboxes in a spe
 ```yaml
 name: Checklist Completion Labeller
 on:
-  issue_comment:
-    types: [created, edited]
+  issues:
+    types: [edited]
 
 jobs:
   checklist-completion:
@@ -19,7 +19,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           issue-number: ${{ github.event.issue.number }}
-          text-body: ${{ github.event.comment.body }}
+          text-body: ${{ github.event.issue.body }}
           issue-labels: ${{ toJson(github.event.issue.labels) }}
           run-check-label: 'P-1'
           incomplete-label: 'verification-needed'
