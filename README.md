@@ -33,11 +33,13 @@ jobs:
 | `github-token` | GitHub token for API access | Yes | `${{ github.token }}` |
 | `issue-number` | Issue number to process | Yes | - |
 | `text-body` | Text body to check | Yes | - |
-| `checklist-key` | Key to identify checklist section | Yes | `p1-checklist` |
+| `checklist-key` | Key to identify checklist section | Yes | - |
 | `issue-labels` | JSON array of issue labels | Yes | - |
-| `run-check-label` | Label indicating checklist present | Yes | `P-1` |
-| `incomplete-label` | Label indicating checklist incomplete | No | `verification-needed` |
-| `completed-label` | Label to add when checklist is completed | No | `verified` |
+| `run-check-label` | Label indicating checklist present | Yes | - |
+| `incomplete-label` | Label indicating checklist incomplete | No | - |
+| `completed-label` | Label to add when checklist is completed | No | - |
+| `require-checkbox-pattern` | Regex pattern for checkbox matching | No | `^\- \[ \]` |
+| `completed-checkbox-pattern` | Label to add when checklist is completed | No | `^\- \[[xX]\]` |
 
 ## Outputs
 
