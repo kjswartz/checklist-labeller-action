@@ -31,7 +31,7 @@ inputs:
   
   run-check-label:
     description: 'Label that indicates there is a checklist that needs to be completed'
-    required: true
+    required: false
 
   incomplete-label:
     description: 'Label that indicates checklist needs to be completed'
@@ -83,7 +83,7 @@ runs:
         echo "message=No action taken" >> $GITHUB_OUTPUT
 
         LABEL_NAMES=$(echo "${LABELS}" | jq 'map(.name // empty)') 
-        if echo "${LABEL_NAMES}" | grep -wq "${RUN_CHECK_LABEL}"; then
+        if [[ -z "${RUN_CHECK_LABEL}" ]] || echo "${LABEL_NAMES}" | grep -wq "${RUN_CHECK_LABEL}"; then
           # Extract the checklist section
           CHECKLIST_SECTION=$(echo "${TEXT_BODY}" | sed -n "/<!-- key=\"${CHECKLIST_KEY}\" value=\"start\" -->/,/<!-- key=\"${CHECKLIST_KEY}\" value=\"end\" -->/p")
 
@@ -151,9 +151,9 @@ runs:
           echo "status=completed" >> $GITHUB_OUTPUT
           echo "message=All checkboxes completed" >> $GITHUB_OUTPUT
           exit 0
-        else
-          echo "${RUN_CHECK_LABEL} label NOT found."
-          echo "status=no-check-label" >> $GITHUB_OUTPUT
-          echo "message=Required run check label not found" >> $GITHUB_OUTPUT
-          exit 0
         fi
+      
+        echo "${RUN_CHECK_LABEL} label NOT found."
+        echo "status=no-check-label" >> $GITHUB_OUTPUT
+        echo "message=Required run check label not found" >> $GITHUB_OUTPUT
+        exit 0
