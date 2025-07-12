@@ -84,7 +84,7 @@ runs:
 
         if [[ -z "${LABELS}" ]]; then
           echo "No labels provided. Attempting to fetch labels from the issue."
-          LABEL_NAMES=$(gh label list --json name | jq 'map(.name // empty)')
+          LABEL_NAMES=$(gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name')
         else
           LABEL_NAMES=$(echo "${LABELS}" | jq 'map(.name // empty)') 
         fi
