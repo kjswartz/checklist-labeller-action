@@ -1,6 +1,6 @@
 # Checklist Labeller Action
 
-This action automatically swaps GitHub issue labels when all checkboxes in a specified checklist section are completed. If the checklist was previously completed and has the completed-label attached and is then unchecked, the completed-label will be removed and the incomplete-label will be added back to the issue. Once the checklist is completed again, the incomplete-label will be removed and the completed-label will be added back. You do not need to include the completed-label, or incompleted-label. If you only include one of them, then just that label will be added/removed based on the completion status.
+This action automatically swaps GitHub issue labels when all checkboxes in a specified checklist section are completed. If the checklist was previously completed and has the completed-label attached and is then unchecked, the completed-label will be removed and the incomplete-label will be added back to the issue. Once the checklist is completed again, the incomplete-label will be removed and the completed-label will be added back. You do not need to include the completed-label, or incompleted-label. If you only include one of them, then just that label will be added/removed based on the completion status. The `run-check-label` is an optional variable that if supplied, will only run the checklist completion search and label updates, if the label is found on the issue. 
 
 ## Usage
 
@@ -21,7 +21,6 @@ jobs:
           issue-number: ${{ github.event.issue.number }}
           text-body: ${{ github.event.issue.body }}
           issue-labels: ${{ toJson(github.event.issue.labels) }}
-          run-check-label: 'P-1'
           incomplete-label: 'verification-needed'
           completed-label: 'verified'
           checklist-key: 'p1-checklist'
@@ -42,7 +41,7 @@ jobs:
 | `text-body` | Text body to check | Yes | - |
 | `checklist-key` | Key to identify checklist section | Yes | - |
 | `issue-labels` | JSON array of issue labels | Yes | - |
-| `run-check-label` | Label indicating checklist present | Yes | - |
+| `run-check-label` | Label indicating checklist present. Provides early exit to the script if label is not found. | No | - |
 | `incomplete-label` | Label indicating checklist incomplete | No | - |
 | `completed-label` | Label to add when checklist is completed | No | - |
 | `require-checkbox-pattern` | Regex pattern for checkbox matching | No | `^\- \[ \]` |
