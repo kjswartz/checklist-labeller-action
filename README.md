@@ -40,7 +40,7 @@ jobs:
 | `issue-number` | Issue number to process | Yes | - |
 | `text-body` | Text body to check | Yes | - |
 | `checklist-key` | Key to identify checklist section | Yes | - |
-| `issue-labels` | JSON array of issue labels | Yes | - |
+| `issue-labels` | JSON array of issue labels | No | - |
 | `run-check-label` | Label indicating checklist present. Provides early exit to the script if label is not found. | No | - |
 | `incomplete-label` | Label indicating checklist incomplete | No | - |
 | `completed-label` | Label to add when checklist is completed | No | - |

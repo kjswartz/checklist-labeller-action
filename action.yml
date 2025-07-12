@@ -82,7 +82,13 @@ runs:
         echo "status=skipped" >> $GITHUB_OUTPUT
         echo "message=No action taken" >> $GITHUB_OUTPUT
 
-        LABEL_NAMES=$(echo "${LABELS}" | jq 'map(.name // empty)') 
+        if [[ -z "${LABELS}" ]]; then
+          echo "No labels provided. Attempting to fetch labels from the issue."
+          LABEL_NAMES=$(gh label list --json name | jq 'map(.name // empty)')
+        else
+          LABEL_NAMES=$(echo "${LABELS}" | jq 'map(.name // empty)') 
+        fi
+
         if [[ -z "${RUN_CHECK_LABEL}" ]] || echo "${LABEL_NAMES}" | grep -wq "${RUN_CHECK_LABEL}"; then
           # Extract the checklist section
           CHECKLIST_SECTION=$(echo "${TEXT_BODY}" | sed -n "/<!-- key=\"${CHECKLIST_KEY}\" value=\"start\" -->/,/<!-- key=\"${CHECKLIST_KEY}\" value=\"end\" -->/p")
