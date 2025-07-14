@@ -26,11 +26,11 @@ inputs:
     required: true
   
   issue-labels:
-    description: 'JSON array of issue labels'
-    required: true
+    description: 'JSON array of issue labels. If not provided, labels will be fetched from the issue via gh cli.'
+    required: false
   
   run-check-label:
-    description: 'Label that indicates there is a checklist that needs to be completed'
+    description: 'Label that indicates there is a checklist that needs to be completed. If this variable is supplied, the action will exit early if the label is not present.'
     required: false
 
   incomplete-label:
@@ -42,7 +42,7 @@ inputs:
     required: false
   
   require-checkbox-pattern:
-    description: 'Regex pattern for checkbox matching'
+    description: 'Regex pattern for empty checkbox matching'
     required: false
     default: '^\- \[ \]'
   
