@@ -109,7 +109,7 @@ runs:
             echo "status=incomplete" >> $GITHUB_OUTPUT
             echo "message=Not all checkboxes are completed" >> $GITHUB_OUTPUT
 
-            if [[ "${COMPLETED_LABEL}" ]]; then
+            if [[ -n "${COMPLETED_LABEL}" ]]; then
               if echo "${LABEL_NAMES}" | grep -wq "${COMPLETED_LABEL}"; then
                 echo "Removing label: ${COMPLETED_LABEL}"
                 if ! gh issue edit "${ISSUE_NUMBER}" --remove-label "${COMPLETED_LABEL}"; then
@@ -118,7 +118,7 @@ runs:
               fi
             fi
 
-            if [[ "${INCOMPLETE_LABEL}" ]]; then
+            if [[ -n "${INCOMPLETE_LABEL}" ]]; then
               if ! echo "${LABEL_NAMES}" | grep -wq "${INCOMPLETE_LABEL}"; then
                 echo "Adding label: ${INCOMPLETE_LABEL}"
                 if ! gh issue edit "${ISSUE_NUMBER}" --add-label "${INCOMPLETE_LABEL}"; then
@@ -140,14 +140,14 @@ runs:
 
           echo "All checkboxes in the checklist section are completed!"
 
-          if [[ "${COMPLETED_LABEL}" ]]; then
+          if [[ -n "${COMPLETED_LABEL}" ]]; then
             echo "Adding label: ${COMPLETED_LABEL}"
             if ! gh issue edit "${ISSUE_NUMBER}" --add-label "${COMPLETED_LABEL}"; then
               echo "Warning: Failed to add label ${COMPLETED_LABEL}"
             fi
           fi
 
-          if [[ "${INCOMPLETE_LABEL}" ]]; then
+          if [[ -n "${INCOMPLETE_LABEL}" ]]; then
             echo "Removing label: ${INCOMPLETE_LABEL}"
             if ! gh issue edit "${ISSUE_NUMBER}" --remove-label "${INCOMPLETE_LABEL}"; then
               echo "Warning: Failed to remove label ${INCOMPLETE_LABEL}"
