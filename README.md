@@ -45,7 +45,7 @@ jobs:
 | `incomplete-label` | Label indicating checklist incomplete | No | - |
 | `completed-label` | Label to add when checklist is completed | No | - |
 | `require-checkbox-pattern` | Regex pattern for checkbox matching | No | `^\- \[ \]` |
-| `completed-checkbox-pattern` | Label to add when checklist is completed | No | `^\- \[[xX]\]` |
+| `completed-checkbox-pattern` | Regex pattern for completed checkbox matching | No | `^\- \[[xX]\]` |
 
 ## Outputs
 
