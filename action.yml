@@ -140,21 +140,17 @@ runs:
 
           echo "All checkboxes in the checklist section are completed!"
 
-          if [[ -n "${COMPLETED_LABEL}" ]]; then
-            if ! echo "${LABEL_NAMES}" | grep -wq "${COMPLETED_LABEL}"; then
-              echo "Adding label: ${COMPLETED_LABEL}"
-              if ! gh issue edit "${ISSUE_NUMBER}" --add-label "${COMPLETED_LABEL}"; then
-                echo "Warning: Failed to add label ${COMPLETED_LABEL}"
-              fi
+          if [[ -n "${COMPLETED_LABEL}" ]] && ! echo "${LABEL_NAMES}" | grep -wq "${COMPLETED_LABEL}"; then
+            echo "Adding label: ${COMPLETED_LABEL}"
+            if ! gh issue edit "${ISSUE_NUMBER}" --add-label "${COMPLETED_LABEL}"; then
+              echo "Warning: Failed to add label ${COMPLETED_LABEL}"
             fi
           fi
 
-          if [[ -n "${INCOMPLETE_LABEL}" ]]; then
-            if echo "${LABEL_NAMES}" | grep -wq "${INCOMPLETE_LABEL}"; then
-              echo "Removing label: ${INCOMPLETE_LABEL}"
-              if ! gh issue edit "${ISSUE_NUMBER}" --remove-label "${INCOMPLETE_LABEL}"; then
-                echo "Warning: Failed to remove label ${INCOMPLETE_LABEL}"
-              fi
+          if [[ -n "${INCOMPLETE_LABEL}" ]] && echo "${LABEL_NAMES}" | grep -wq "${INCOMPLETE_LABEL}"; then
+            echo "Removing label: ${INCOMPLETE_LABEL}"
+            if ! gh issue edit "${ISSUE_NUMBER}" --remove-label "${INCOMPLETE_LABEL}"; then
+              echo "Warning: Failed to remove label ${INCOMPLETE_LABEL}"
             fi
           fi
 
