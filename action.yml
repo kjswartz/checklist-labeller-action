@@ -86,7 +86,7 @@ runs:
           echo "No labels provided. Attempting to fetch labels from the issue."
           LABEL_NAMES=$(gh issue view $ISSUE_NUMBER --json labels --jq '.labels[].name')
         else
-          LABEL_NAMES=$(echo "${LABELS}" | jq 'map(.name // empty)') 
+          LABEL_NAMES=$(echo "${LABELS}" | jq -r 'map(.name // empty) | .[]')
         fi
 
         if [[ -z "${RUN_CHECK_LABEL}" ]] || echo "${LABEL_NAMES}" | grep -wq "${RUN_CHECK_LABEL}"; then
@@ -104,7 +104,7 @@ runs:
           echo "Found checklist section."
 
           # Check if empty checkboxes are present
-          if echo "${CHECKLIST_SECTION}" | grep -wq "${REQUIRE_CHECKBOX_PATTERN}"; then
+          if echo "${CHECKLIST_SECTION}" | grep -q "${REQUIRE_CHECKBOX_PATTERN}"; then
             echo "Not all checkboxes within the section are completed."
             echo "status=incomplete" >> $GITHUB_OUTPUT
             echo "message=Not all checkboxes are completed" >> $GITHUB_OUTPUT
@@ -131,7 +131,7 @@ runs:
           fi
 
           # Verify that there are actually completed checkboxes present
-          if ! echo "${CHECKLIST_SECTION}" | grep -wq "${COMPLETED_CHECKBOX_PATTERN}"; then
+          if ! echo "${CHECKLIST_SECTION}" | grep -q "${COMPLETED_CHECKBOX_PATTERN}"; then
             echo "No completed checkboxes found within the section."
             echo "status=no-checkboxes" >> $GITHUB_OUTPUT
             echo "message=No completed checkboxes found" >> $GITHUB_OUTPUT
